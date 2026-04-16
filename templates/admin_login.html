@@ -1,16 +1,65 @@
 <!DOCTYPE html>
-<html>
+<html lang="it">
 <head>
-    <title>Admin Login</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gusta30 - Area Riservata</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #024e5f, #a0e7e5);
+        }
+        .login-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 { color: var(--primary-color); margin-bottom: 30px; }
+        input[type="password"] {
+            width: 100%;
+            padding: 12px 16px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+        }
+        .btn-primary {
+            width: 100%;
+            background: var(--primary-color);
+            color: white;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-primary:hover { transform: scale(1.02); }
+        .error { color: #f44336; margin-bottom: 20px; font-weight: 500; }
+        .back-link { display: block; margin-top: 20px; color: var(--text-muted); font-size: 0.9rem; }
+    </style>
 </head>
 <body>
-    <h2>Area Riservata</h2>
-    {% if error %}
-        <p style="color: red;">{{ error }}</p>
-    {% endif %}
-    <form method="POST">
-        <input type="password" name="password" placeholder="Inserisci password admin" required>
-        <button type="submit">Accedi</button>
-    </form>
+    <div class="login-box">
+        <h2>Area Riservata</h2>
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+        <form method="POST">
+            <input type="password" name="password" placeholder="Password Amministratore" required autofocus>
+            <button type="submit" class="btn-primary">Accedi</button>
+        </form>
+        <a href="/" class="back-link">← Torna al sito</a>
+    </div>
 </body>
 </html>

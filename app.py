@@ -1,199 +1,177 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, abort, session
+import os
+import json
 from datetime import datetime
+from flask import Flask, render_template, jsonify, request, redirect, url_for, abort, session
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'XRpX9lXBsg2cb9i5MKkntthZmgVNRMt6' 
-API_SECRET = 'mypassword'
+app.secret_key = os.getenv('APP_SECRET_KEY', 'default_secret_key_change_me')
+ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'mypassword')
+API_TOKEN = os.getenv('API_TOKEN', 'mypassword')
+STORAGE_FILE = os.getenv('STORAGE_FILE', 'data.json')
 
-# Stato iniziale delle tappe (bloccate)
-detailed_tappe = {
+# Base Stage Data (Configuration)
+# In a larger app, this would be in a database
+STAGES_CONFIG = {
     "1 - Partenza": {
-        "default": True,
-        "unlocked": True, 
         "start": "13:45 (Ritrovo)", 
         "end": "14:00 (Partenza)",
-        "luogo": "Campo di calcio Avegno"
+        "luogo": "Campo di calcio Avegno",
+        "default_unlocked": True
     },
     "2 - Antipasto": {
-        "unlocked": False, 
         "start": "14:45", 
         "end": "15:30",
-        "cibo": ["Minestrone 🍲",
-                 "Pane 🍞",
-                 "Formaggio grattuggiato 🧀"], 
-        "bevande": ["La Murata (Merlot - Ghidossi) 🍷",
-                    "Birra Feldschlösschen 🍺",
-                    "Soft drinks 🥤"],
+        "cibo": ["Minestrone 🍲", "Pane 🍞", "Formaggio grattuggiato 🧀"], 
+        "bevande": ["La Murata (Merlot - Ghidossi) 🍷", "Birra Feldschlösschen 🍺", "Soft drinks 🥤"],
         "hosts": ["Valeria", "Luigi"],
         "unlock_time": "2025-04-26T14:45:00",
         "luogo": "Casa Rossa"
-        },
+    },
     "3 - Snack": {
-        "unlocked": False, 
         "start": "15:45", 
         "end": "16:30",
         "cibo": ["Torte salate 🥧"], 
-        "bevande": ["Prosecco 🍾",
-                    "Vino bianco (Pralis) 🥂",
-                    "Birra Moretti 🍺",
-                    "Soft drinks 🥤"],
+        "bevande": ["Prosecco 🍾", "Vino bianco (Pralis) 🥂", "Birra Moretti 🍺", "Soft drinks 🥤"],
         "hosts": ["Albina", "Paola"],
         "unlock_time": "2025-04-26T15:45:00",
         "luogo": "Grotti Vinzott"
-        },
+    },
     "4 - Aperitivo": {
-        "unlocked": False, 
         "start": "16:45", 
         "end": "18:15",
-        "cibo": ["Arrosticini 🍢🍖",
-                 "Formaggi 🧀",
-                 "Chips 🍟"], 
-        "bevande": ["Aperol/Campari Spritz 🍹",
-                    "Vino bianco (Pralis) 🥂",
-                    "Birra Feldschlosschen 🍺",
-                    "Soft drinks 🥤"],
+        "cibo": ["Arrosticini 🍢🍖", "Formaggi 🧀", "Chips 🍟"], 
+        "bevande": ["Aperol/Campari Spritz 🍹", "Vino bianco (Pralis) 🥂", "Birra Feldschlosschen 🍺", "Soft drinks 🥤"],
         "hosts": ["Luigi", "Alle", "Valeria"],
         "unlock_time": "2025-04-26T16:45:00",
         "luogo": "Balomina"
-        },
+    },
     "5 - Cena": {
-        "unlocked": False,
         "start": "18:30",
         "end": "01:00 (Fine)",
-        "cibo": ["Polenta 🍛",
-                 "Spezzatino di manzo 🍖",
-                 "Gorgonzola 🧀",
-                 "Leftovers 🍱",
-                 "Torta 🎂"],
-        "bevande": ["Nuwanda (Barbera D'Asti - BelColle) 🍷",
-                    "Soft drinks 🥤",
-                    "Git Tonic 🧊",
-                    "Leftovers 🥂"],
+        "cibo": ["Polenta 🍛", "Spezzatino di manzo 🍖", "Gorgonzola 🧀", "Leftovers 🍱", "Torta 🎂"],
+        "bevande": ["Nuwanda (Barbera D'Asti - BelColle) 🍷", "Soft drinks 🥤", "Git Tonic 🧊", "Leftovers 🥂"],
         "hosts": ["Gabriele"],
         "unlock_time": "2025-04-26T18:30:00",
         "luogo": "Sala parrocchiale"
     }
 }
 
-preview_tappe = {
-    "1 - Partenza": {
-        "default": True,
-        "unlocked": True, 
-        "start": "13:45 (Ritrovo)", 
-        "end": "14:00 (Partenza)",
-        "hosts": [],
-        "luogo": "Campo di calcio Avegno"
-    },
-    "2 - Antipasto": {
-        "unlocked": False, 
-        "start": "14:45", 
-        "end": "15:30",
-        "cibo": [], 
-        "bevande": [],
-        "hosts": [],
-        "luogo": ""
-        },
-    "3 - Snack": {
-        "unlocked": False, 
-        "start": "15:45", 
-        "end": "16:30",
-        "cibo": [], 
-        "bevande": [],
-        "hosts": [],
-        "luogo": ""
-        },
-    "4 - Aperitivo": {
-        "unlocked": False, 
-        "start": "16:45", 
-        "end": "18:15",
-        "cibo": [], 
-        "bevande": [],
-        "hosts": [],
-        "luogo": ""
-        },
-    "5 - Cena": {
-        "unlocked": False,
-        "start": "18:30",
-        "end": "01:00 (Fine)",
-        "cibo": [],
-        "bevande": [],
-        "hosts": [],
-        "luogo": ""
-    }
-}
+# Threshold for showing the full QR code
+EVENT_THRESHOLD = datetime(2025, 4, 26, 13, 30)
 
-event_threshold = datetime(2025, 4, 26, 13, 30)
-# Conditional assignment
-now = datetime.now()
+def load_state():
+    """Load the manual unlock state from disk."""
+    if os.path.exists(STORAGE_FILE):
+        try:
+            with open(STORAGE_FILE, 'r') as f:
+                content = json.load(f)
+                # Migration: if old format (list), convert to new format (dict)
+                if isinstance(content.get("unlocked_stages"), list):
+                    overrides = {stage_id: True for stage_id in content["unlocked_stages"]}
+                    return {"overrides": overrides}
+                return content
+        except (json.JSONDecodeError, IOError):
+            return {"overrides": {}}
+    return {"overrides": {}}
 
-tappe = detailed_tappe
+def save_state(state):
+    """Save the manual unlock state to disk."""
+    with open(STORAGE_FILE, 'w') as f:
+        json.dump(state, f, indent=4)
+
+def get_current_stages():
+    """Compute current stage state based on manual overrides, then automatic logic."""
+    now = datetime.now()
+    state = load_state()
+    overrides = state.get("overrides", {})
+    
+    current_stages = {}
+    for stage_id, data in STAGES_CONFIG.items():
+        stage = data.copy()
+        
+        # Priority 1: Manual Override
+        if stage_id in overrides:
+            stage["unlocked"] = overrides[stage_id]
+        else:
+            # Priority 2: Automatic Logic
+            is_default = stage.get("default_unlocked", False)
+            unlocked_by_time = False
+            if "unlock_time" in stage:
+                try:
+                    unlock_time = datetime.fromisoformat(stage["unlock_time"])
+                    unlocked_by_time = now >= unlock_time
+                except ValueError:
+                    pass
+            stage["unlocked"] = is_default or unlocked_by_time
+            
+        current_stages[stage_id] = stage
+        
+    return current_stages
 
 @app.route('/')
 def index():
     now = datetime.now()
-    show_full_qr = now >= event_threshold
+    show_full_qr = now >= EVENT_THRESHOLD
     return render_template('index.html', show_full_qr=show_full_qr)
 
 @app.route('/api/tappe')
 def get_tappe():
     token = request.headers.get('X-API-TOKEN')
-    if token != API_SECRET:
+    if token != API_TOKEN:
         abort(403)
-    now = datetime.now()
-
-    updated_tappe = {}
-    for id, tappa in tappe.items():
-        tappa_copy = tappa.copy()
-
-        unlock_time_str = tappa.get("unlock_time")
-        if unlock_time_str:
-            unlock_time = datetime.fromisoformat(unlock_time_str)
-            # Unlock if the current time has passed unlock time
-            if now >= unlock_time:
-                tappa_copy["unlocked"] = True
-
-        updated_tappe[id] = tappa_copy
-
-    return jsonify(updated_tappe)
-
-@app.route('/unlock/<tappa_id>', methods=['POST'])
-def unlock_tappa(tappa_id):
-    if tappa_id in tappe:
-        tappe[tappa_id]["unlocked"] = True
-        return redirect(url_for('admin'))  # Torna al pannello admin
-    return "Tappa non trovata", 404
-
-@app.route('/lock/<tappa_id>', methods=['POST'])
-def lock_tappa(tappa_id):
-    if tappa_id in tappe:
-        tappe[tappa_id]["unlocked"] = False
-        return redirect(url_for('admin'))
-    return "Tappa non trovata", 404
-
+    
+    return jsonify(get_current_stages())
 
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    # If the user is already logged in, skip the password check
-    if 'logged_in' in session and session['logged_in']:
-        return render_template('admin_panel.html', tappe=tappe)
-
     if request.method == 'POST':
         password = request.form.get('password')
-        if password == API_SECRET:
-            # Set a session variable to indicate the user is logged in
+        if password == ADMIN_PASSWORD:
             session['logged_in'] = True
-            return render_template('admin_panel.html', tappe=tappe)
+            return redirect(url_for('admin'))
         else:
             return render_template('admin_login.html', error="Password errata")
 
-    return render_template('admin_login.html')
+    if not session.get('logged_in'):
+        return render_template('admin_login.html')
 
+    return render_template('admin_panel.html', tappe=get_current_stages())
+
+@app.route('/admin/unlock/<path:stage_id>', methods=['POST'])
+def unlock_stage(stage_id):
+    if not session.get('logged_in'):
+        abort(401)
+        
+    state = load_state()
+    state.setdefault("overrides", {})[stage_id] = True
+    save_state(state)
+        
+    return redirect(url_for('admin'))
+
+@app.route('/admin/lock/<path:stage_id>', methods=['POST'])
+def lock_stage(stage_id):
+    if not session.get('logged_in'):
+        abort(401)
+        
+    state = load_state()
+    state.setdefault("overrides", {})[stage_id] = False
+    save_state(state)
+        
+    return redirect(url_for('admin'))
 
 @app.route('/logout')
 def logout():
-    # Clear the session and redirect to login
     session.clear()
     return redirect(url_for('admin'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Get port from environment or use default 5000
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', 5000))
+    debug = os.getenv('DEBUG', 'True').lower() == 'true'
+    
+    app.run(host=host, port=port, debug=debug)
