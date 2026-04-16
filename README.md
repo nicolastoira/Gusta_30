@@ -63,7 +63,32 @@ Gusta30 is a modern, responsive web application designed for a gastronomic walk 
 
 ## 🔐 Admin Panel
 
-Access the admin panel at `/admin` to manually unlock or lock stages. The password is set in your `.env` file.
+Access the admin panel at `/admin` to manually unlock or lock stages. The password is set in your `.env` file (locally) or via Fly.io secrets.
+
+## 🚀 Fly.io Deployment
+
+The application is configured to be deployed on [Fly.io](https://fly.io) with persistent storage.
+
+### 1. Persistent Volume
+Fly.io uses an ephemeral filesystem. To ensure your `data.json` persists, you must create a volume:
+```bash
+fly volumes create gusta30_data --size 1 --region fra
+```
+
+### 2. Configuration (`fly.toml`)
+The repository includes a `fly.toml` that mounts the volume to `/data`. The application automatically detects this and stores `data.json` at `/data/data.json`.
+
+### 3. Secrets
+Set your environment variables as Fly secrets:
+```bash
+fly secrets set APP_SECRET_KEY=... ADMIN_PASSWORD=... API_TOKEN=...
+```
+
+### 4. Deploy
+Simply run:
+```bash
+fly deploy
+```
 
 ---
 *Created for the Gusta30 event in Avegno.*
