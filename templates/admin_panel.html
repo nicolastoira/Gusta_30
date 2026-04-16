@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Pannello Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f7f7f7;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .tappa-box {
+            background: #fff;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-left: 5px solid #009999;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .tappa-box.unlocked {
+            border-color: #4CAF50;
+        }
+
+        .tappa-box.locked {
+            border-color: #f44336;
+        }
+
+        form {
+            display: inline;
+        }
+
+        button {
+            margin-left: 10px;
+            padding: 6px 12px;
+            font-size: 14px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .unlock-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .lock-btn {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <h2>Pannello Admin</h2>
+    
+    {% for id, tappa in tappe.items() %}
+        <div class="tappa-box {{ 'unlocked' if tappa.unlocked else 'locked' }}">
+            <strong>Tappa {{ id }}</strong> -
+            <em>{{ 'Sbloccata' if tappa.unlocked else 'Bloccata' }}</em>
+
+            {% if tappa.unlocked %}
+                <form method="POST" action="{{ url_for('lock_tappa', tappa_id=id) }}">
+                    <button type="submit" class="lock-btn">Blocca</button>
+                </form>
+            {% else %}
+                <form method="POST" action="{{ url_for('unlock_tappa', tappa_id=id) }}">
+                    <button type="submit" class="unlock-btn">Sblocca</button>
+                </form>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <form action="{{ url_for('logout') }}" method="GET">
+        <button type="submit">Logout</button>
+    </form>
+</body>
+</html>

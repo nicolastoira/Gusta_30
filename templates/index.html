@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>Gusta30 - Passeggiata Gastronomica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="{{ url_for('static', filename='logo.jpg') }}" type="image/x-icon">
+    <div id="image-popup" class="image-popup" style="display:none;">
+        <img src="static/popup.jpg" alt="Popup Image" id="popup-image">
+    </div>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #a0e7e5, #024e5f, #f8f3d4);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            color: #333333;
+        }   
+
+        .container {
+            width: 100%; /* Make the container take up the full width */
+            max-width: none; /* Remove the max-width limit */
+            padding: 0 20px; /* Add some padding if you want space on the sides */
+            box-sizing: border-box; /* Ensure padding is included in the width */
+        }
+
+
+        header {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 30px;
+        }   
+
+        .header-left img {
+            max-width: 200px; /* or try 150px, 160px, etc. */
+            border-radius: 12px;
+        }
+
+        .title-block {
+            text-align: center;       /* Center the text inside */
+            margin: 0 auto;           /* Center the block horizontally */
+        }
+
+        .title-block h1 {
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        .title-block h2 {
+            font-size: 1.2rem;
+            margin: 0;
+            color: #666;
+        }
+
+        .title-block h3 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        .countdown-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        #countdown {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #b30000;
+            margin-top: 15px;
+            text-align: center; 
+        }
+
+        .tappa {
+            border-radius: 10px;
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+            transition: transform 0.2s ease;
+            text-align: left;
+        }
+
+        .tappa:hover {
+            transform: translateY(-2px);
+        }
+
+        .locked {
+            opacity: 0.6;
+        }
+
+        .tappa h3 {
+            margin-top: 0;
+            color: #2b2b2b;
+        }
+
+        .tappa p {
+            margin: 6px 0;
+        }
+
+        /* Styling for the image popup overlay */
+        .image-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9); /* Semi-transparent dark background */
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* Ensure it's on top of other content */
+        }
+
+        .image-popup img {
+            max-width: 90%;  /* Limit image size */
+            max-height: 90%; /* Limit image size */
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .footer {
+            text-align: center;
+            font-size: 1rem;
+            color: #333;
+            margin-top: 40px;
+            padding: 10px 0;
+        }
+
+        .footer p {
+            margin: 0;
+            font-weight: bold;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+    </style>
+</head>
+<body>
+
+<script>
+    window.onload = function() {
+        const imagePopup = document.getElementById('image-popup');
+        const image = document.getElementById('popup-image');
+
+        // Show the image popup when the page loads
+        imagePopup.style.display = 'flex';
+
+        // Hide the image popup after 4 seconds
+        setTimeout(function() {
+            imagePopup.style.display = 'none';
+        }, 2000); // Popup will disappear after 4 seconds
+    };
+</script>
+
+
+    <div class="container">
+        <header>
+            <div class="header-left">
+                <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo Gusta30">
+                <div class="title-block">
+                    <h1>Gusta30</h1>
+                    <h2>26.04.2025</h2>
+                    <h3>
+                        <div class="countdown-container">
+                            <div id="countdown">Loading countdown...</div>
+                        </div>
+                    </h3>
+                </div>
+                {% if show_full_qr %}
+                    <img src="{{ url_for('static', filename='qr.jpg') }}" alt="QR Code">
+                {% else %}
+                    <img src="{{ url_for('static', filename='empty_qr.jpg') }}" alt="QR Code">
+                {% endif %}
+
+            </div>
+        </header>
+        
+            <div class="tappa">
+                <h3>Informazioni Generali</h3>
+                <p><strong>Data:</strong> Sabato 26 Aprile 2025</p>
+                <p><strong>Ritrovo:</strong> Ore 13:45 al <a href="https://maps.app.goo.gl/Ba16dmDfkAkPkQS17?g_st=com.google.maps.preview.copy" 
+                    style="color: #009999; font-weight: bold; text-decoration: underline;">
+                    campo di calcio di Avegno
+                 </a></p>
+                <p><strong>Durata:</strong> Dalle 14:00 alle 01:00</p>
+                <p><strong>Luogo:</strong> Percorso enogastronomico nel paese di Avegno</p>
+                <p><strong>Dosatevi:</strong> Conservate un po’ di fame… la cena vi aspetta all’ultima tappa!</p>
+                <p><strong>Nota:</strong> Alla partenza verranno raccolti eventuali effetti personali e portati alla tappa finale, ovvero alla 
+                    <a href="https://maps.app.goo.gl/pK3q2V71PY2vkvCS7?g_st=com.google.maps.preview.copy" 
+                        style="color: #009999; font-weight: bold; text-decoration: underline;">
+                        sala parrocchiale
+                     </a> di Avegno. La cena si svolgerà lì.</p>
+            </div>
+
+            <div class="tappa">
+                <h3><i class="fas fa-bus"></i> Trasporti</h3>
+                <p><strong>Bus - Linea 315</strong></p>
+                <ul>
+                    <li><strong><a href="https://www.sbb.ch/en?date=%222025-04-26%22&moment=%22DEPARTURE%22&selected_trip=0&stops=%5B%7B%22value%22%3A%228578881%22%2C%22type%22%3A%22ID%22%2C%22label%22%3A%22Locarno%2C%20Stazione%22%7D%2C%7B%22value%22%3A%228587745%22%2C%22type%22%3A%22ID%22%2C%22label%22%3A%22Avegno%2C%20Grotti%22%7D%5D&time=%2213%3A20%22" 
+                        style="color: #009999; font-weight: bold; text-decoration: underline;">
+                        Andata</a>:</strong> Locarno Stazione (13:20) - Avegno Grotti (13:38)</li>
+                    <li><strong><a href="https://www.sbb.ch/en?date=%222025-04-26%22&moment=%22DEPARTURE%22&selected_trip=0&stops=%5B%7B%22value%22%3A%228505474%22%2C%22type%22%3A%22ID%22%2C%22label%22%3A%22Avegno%2C%20Paese%22%7D%2C%7B%22value%22%3A%228578881%22%2C%22type%22%3A%22ID%22%2C%22label%22%3A%22Locarno%2C%20Stazione%22%7D%5D&time=%2200%3A15%22" 
+                        style="color: #009999; font-weight: bold; text-decoration: underline;">
+                        Ritorno</a>:</strong> Avegno Paese (00:15) - Locarno Stazione (00:39)</li>
+                </ul>
+                <p><strong>Auto</strong></p>
+                <ul>
+                    <li>Parcheggio per le auto <a href="https://maps.app.goo.gl/NcQGujMFZpNfwj1i7?g_st=com.google.maps.preview.copy" 
+                        style="color: #009999; font-weight: bold; text-decoration: underline;">
+                        qui
+                     </a></li>
+                </ul>
+            </div>
+
+        <main id="tappe-container">
+            Caricamento tappe...
+        </main>
+        
+    </div>
+    <script>
+        const API_TOKEN = 'mypassword';
+    
+        function caricaTappe() {
+            fetch('/api/tappe', {
+                headers: {
+                    'X-API-TOKEN': API_TOKEN
+                }
+            })
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("Accesso negato o errore nel recupero dei dati.");
+                }
+                return res.json();
+            })
+            .then(data => {
+                const container = document.getElementById('tappe-container');
+                container.innerHTML = '';
+                for (let id in data) {
+                    const tappa = data[id];
+                    const div = document.createElement('div');
+                    div.className = 'tappa ' + (tappa.unlocked ? '' : 'locked');
+                    div.innerHTML = `
+                        <h3>Tappa ${id}</h3>
+                        <p><strong>Orario:</strong> ${tappa.start} - ${tappa.end}</p>
+                        ${
+                            tappa.unlocked ? (
+                                tappa.default ? `<p><strong>Luogo:</strong> ${tappa.luogo}</p>` : `
+                                    <p><strong>Luogo:</strong> ${tappa.luogo}</p>
+                                    <p><strong>Cibo:</strong></p>
+                                    <ul>
+                                        ${tappa.cibo.map(cibo => `<li>${cibo}</li>`).join('')}
+                                    </ul>
+                                    <p><strong>Bevande:</strong></p>
+                                    <ul>
+                                        ${tappa.bevande.map(bevanda => `<li>${bevanda}</li>`).join('')}
+                                    </ul>
+                                    <p><strong>Hosts:</strong> ${tappa.hosts.join(" · ")}</p>
+                                `
+                            ) : `<p><em>Contenuti bloccati fino all'orario designato</em></p>`
+                        }
+                    `;
+
+                    container.appendChild(div);
+                }
+            })
+            .catch(error => {
+                console.error("Errore:", error);
+            });
+        }
+    
+        function unlockTappa(id) {
+            fetch('/api/unlock/' + id, { method: 'POST' })
+                .then(() => caricaTappe());
+        }
+    
+        caricaTappe();
+    </script>
+    
+    <script>
+        const countdownElement = document.getElementById("countdown");
+        const eventDate = new Date("2025-04-26T13:45:00");
+
+        function updateCountdown() {
+            const now = new Date();
+            const diff = eventDate - now;
+
+            if (diff <= 0) {
+                countdownElement.innerHTML = `L'evento è iniziato!<br>
+                <a href="https://umap.osm.ch/it/map/gusta30_9243" 
+                style="color: #009999; font-weight: bold; text-decoration: underline;">
+                Vai alla mappa Gusta30
+                </a>
+            `;
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+            const minutes = Math.floor((diff / (1000 * 60)) % 60);
+            const seconds = Math.floor((diff / 1000) % 60);
+
+            countdownElement.textContent =
+                `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
+    <footer class="footer">
+        <p>&copy; 2025 Gusta30 - All Rights Reserved</p>
+    </footer>
+</body>
+</html>
+    

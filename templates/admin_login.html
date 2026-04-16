@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Login</title>
+</head>
+<body>
+    <h2>Area Riservata</h2>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+    <form method="POST">
+        <input type="password" name="password" placeholder="Inserisci password admin" required>
+        <button type="submit">Accedi</button>
+    </form>
+</body>
+</html>
