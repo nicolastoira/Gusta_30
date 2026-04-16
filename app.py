@@ -11,7 +11,12 @@ app = Flask(__name__)
 app.secret_key = os.getenv('APP_SECRET_KEY', 'default_secret_key_change_me')
 ADMIN_PASSWORD = os.getenv('ADMIN_PASSWORD', 'mypassword')
 API_TOKEN = os.getenv('API_TOKEN', 'mypassword')
-STORAGE_FILE = os.getenv('STORAGE_FILE', 'data.json')
+# Persistence configuration
+# In Docker/Fly.io, we mount a volume at /data
+if os.path.exists('/data'):
+    STORAGE_FILE = '/data/data.json'
+else:
+    STORAGE_FILE = os.getenv('STORAGE_FILE', 'data.json')
 
 # Base Stage Data (Configuration)
 # In a larger app, this would be in a database

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv
+venv
+.env
+.git
+.gitignore
+data.json
+README.md
+task.md
+walkthrough.md
+implementation_plan.md
+EOF
